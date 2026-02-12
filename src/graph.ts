@@ -5,8 +5,8 @@ interface Vertex {
 };
 
 interface Edge {
-  source:   number,
-  target:   number,
+  source:   Vertex,
+  target:   Vertex,
   label:    string,
   focused:  boolean,
 }
@@ -29,7 +29,7 @@ function createVertex(isInitial: boolean, isFinal: boolean) {
   return makeVertex(isInitial, isFinal);
 }
 
-function createEdge(source: number, target: number, label: string, focused: boolean): Edge {
+function createEdge(source: Vertex, target: Vertex, label: string, focused: boolean): Edge {
   return {
     source: source,
     target: target,
@@ -41,15 +41,22 @@ function createEdge(source: number, target: number, label: string, focused: bool
 // ----------------------------------------------------------
 
 class Graph {
-  vertices: Map<number, Vertex> = new Map();
+  vertices: Set<Vertex> = new Set();
   edges: Set<Edge>      = new Set();
   
   addVertex(isInitial: boolean = false, isFinal: boolean = false): Vertex {
     let v: Vertex = createVertex(isInitial, isFinal);
-    this.vertices.set(v.id, v);
+    this.vertices.add(v);
     return v;
   }
 
-  addEdge(source: number, target: number, label: string, focused: boolean): Edge {
+  addEdge(source: Vertex, target: Vertex, label: string, focused: boolean): Edge|null {
+    if (!this.vertices.has(source))
+      return null
+    if (!this.vertices.has(target))
+      return null
+    let e: Edge = createEdge(source, target, label, focused);
+    this.edges.add(e);
+    return e;
   }
 }
