@@ -1,24 +1,21 @@
 import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import d3 from 'd3'
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+const svgSize = {
+  width: 600,
+  height: 400,
+}
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+var nfaSvg;
+var dfaSvg;
+
+function init(): void {
+  nfaSvg = d3.select("#nfa-canvas")
+    .attr("width", svgSize.width)
+    .attr("height", svgSize.height);
+  dfaSvg = d3.select("#dfa-canvas")
+    .attr("width", svgSize.width)
+    .attr("height", svgSize.height);
+}
+
+init();
