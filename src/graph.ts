@@ -1,10 +1,10 @@
-interface Vertex {
+export interface Vertex {
   id:         number,
   isInitial:  boolean,
   isFinal:    boolean,
 };
 
-interface Edge {
+export interface Edge {
   source:   Vertex,
   target:   Vertex,
   label:    string,
@@ -40,7 +40,7 @@ function createEdge(source: Vertex, target: Vertex, label: string, focused: bool
 
 // ----------------------------------------------------------
 
-class Graph {
+export default class Graph {
   vertices: Set<Vertex> = new Set();
   edges: Set<Edge>      = new Set();
   
@@ -58,5 +58,12 @@ class Graph {
     let e: Edge = createEdge(source, target, label, focused);
     this.edges.add(e);
     return e;
+  }
+
+  ojectify() {
+    return {
+      "nodes": [...this.vertices],
+      "links": [...this.edges],
+    };
   }
 }
