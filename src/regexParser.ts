@@ -36,32 +36,12 @@
  */
 
 
-class RegexNode {
-  public s: string;
-  public phase: string;
-  public children: RegexNode[];
-
-  constructor(s: string, phase: string) {
-    this.s = s;
-    this.phase = phase;
-    this.children = [];
-  }
-}
 
 export default class RegexParser {
   public target: string;
-  public head: RegexNode;
-
-  constructor(s: string) {
-    this.target = s;
-    this.head = new RegexNode(s, "L");
-  }
-
-  parse() {
-    this.earley();
-  }
-
-  private earley() {
-    function predictor()
+  
+  constructor(target: string) {
+    this.target = target;
+    
   }
 }
