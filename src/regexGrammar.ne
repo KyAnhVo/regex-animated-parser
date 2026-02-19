@@ -1,3 +1,5 @@
+@preprocessor typescript
+
 Regex -> Conjunction | Conjunction "|" Conjunction
 Conjunction -> Term | Conjunction Term
 Term -> SimpleTerm | SimpleTerm UnaryOps | SimpleTerm Quantifier
@@ -7,7 +9,7 @@ ExactQuantifier -> "{" Int "}"
 MinQuantifier -> "{" Int ",}"
 MaxQuantifier -> "{," Int "}"
 MinMaxQuantifier -> "{" Int "," Int "}"
-SimpleTerm -> Printable | Escape Printable | (Regex) 
+SimpleTerm -> Printable | Escape Printable | "(" Regex ")" 
 Escape -> "\\"
 Int -> [0-9]:+
 Printable -> [ -~]
