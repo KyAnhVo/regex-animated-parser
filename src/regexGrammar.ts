@@ -34,34 +34,56 @@ interface Grammar {
 const grammar: Grammar = {
   Lexer: undefined,
   ParserRules: [
-    {"name": "Regex", "symbols": ["Conjunction"]},
-    {"name": "Regex", "symbols": ["Conjunction", {"literal":"|"}, "Conjunction"]},
-    {"name": "Conjunction", "symbols": ["Term"]},
-    {"name": "Conjunction", "symbols": ["Conjunction", "Term"]},
-    {"name": "Term", "symbols": ["SimpleTerm"]},
-    {"name": "Term", "symbols": ["SimpleTerm", "UnaryOps"]},
-    {"name": "Term", "symbols": ["SimpleTerm", "Quantifier"]},
-    {"name": "UnaryOps", "symbols": [{"literal":"+"}]},
-    {"name": "UnaryOps", "symbols": [{"literal":"*"}]},
-    {"name": "UnaryOps", "symbols": [{"literal":"?"}]},
-    {"name": "Quantifier", "symbols": ["ExactQuantifier"]},
-    {"name": "Quantifier", "symbols": ["MinQuantifier"]},
-    {"name": "Quantifier", "symbols": ["MaxQuantifier"]},
-    {"name": "Quantifier", "symbols": ["MinMaxQuantifier"]},
-    {"name": "ExactQuantifier", "symbols": [{"literal":"{"}, "Int", {"literal":"}"}]},
-    {"name": "MinQuantifier$string$1", "symbols": [{"literal":","}, {"literal":"}"}], "postprocess": (d) => d.join('')},
-    {"name": "MinQuantifier", "symbols": [{"literal":"{"}, "Int", "MinQuantifier$string$1"]},
-    {"name": "MaxQuantifier$string$1", "symbols": [{"literal":"{"}, {"literal":","}], "postprocess": (d) => d.join('')},
-    {"name": "MaxQuantifier", "symbols": ["MaxQuantifier$string$1", "Int", {"literal":"}"}]},
-    {"name": "MinMaxQuantifier", "symbols": [{"literal":"{"}, "Int", {"literal":","}, "Int", {"literal":"}"}]},
-    {"name": "SimpleTerm", "symbols": ["Printable"]},
-    {"name": "SimpleTerm", "symbols": ["Escape", "Printable"]},
-    {"name": "SimpleTerm", "symbols": [{"literal":"("}, "Regex", {"literal":")"}]},
-    {"name": "Escape", "symbols": [{"literal":"\\"}]},
+    {"name": "Regex$ebnf$1", "symbols": []},
+    {"name": "Regex$ebnf$1$subexpression$1", "symbols": [{"literal":"|"}, "Conjunction"]},
+    {"name": "Regex$ebnf$1", "symbols": ["Regex$ebnf$1", "Regex$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "Regex", "symbols": ["Conjunction", "Regex$ebnf$1"], "postprocess":  function(data) {
+            if (data.length === 1) return data[0];
+            let conjunctions = [data[0]];
+            for (const child of data[1]) {
+                conjunctions.push(child[1]);
+            }
+            return {
+                op: "disjunction",
+                children: conjunctions
+            };
+        } },
+    {"name": "Conjunction$ebnf$1", "symbols": ["Term"]},
+    {"name": "Conjunction$ebnf$1", "symbols": ["Conjunction$ebnf$1", "Term"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "Conjunction", "symbols": ["Conjunction$ebnf$1"], "postprocess":  (data) => {
+            if (data.length === 1) return data[0];
+            return {
+                op: "concatenation",
+                children: data
+            };
+        } },
+    {"name": "Term$ebnf$1$subexpression$1", "symbols": [{"literal":"*"}]},
+    {"name": "Term$ebnf$1$subexpression$1", "symbols": [{"literal":"+"}]},
+    {"name": "Term$ebnf$1$subexpression$1", "symbols": [{"literal":"?"}]},
+    {"name": "Term$ebnf$1$subexpression$1", "symbols": ["Quantifier"]},
+    {"name": "Term$ebnf$1", "symbols": ["Term$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "Term$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "Term", "symbols": ["SimpleTerm", "Term$ebnf$1"], "postprocess":  function(data) {
+            if (data[1] === null) return data[0];
+            return {
+                op: "term",
+                object: data[0],
+                quantifier: data[1]
+            }  
+        } },
+    {"name": "SimpleTerm", "symbols": ["Char"]},
+    {"name": "SimpleTerm", "symbols": [{"literal":"("}, "Regex", {"literal":")"}], "postprocess":  (data) => {
+            return data;
+        } },
+    {"name": "Quantifier$subexpression$1", "symbols": ["Int"]},
+    {"name": "Quantifier$subexpression$1", "symbols": ["Int", {"literal":","}]},
+    {"name": "Quantifier$subexpression$1", "symbols": [{"literal":","}, "Int"]},
+    {"name": "Quantifier$subexpression$1", "symbols": ["Int", {"literal":","}, "Int"]},
+    {"name": "Quantifier", "symbols": [{"literal":"{"}, "Quantifier$subexpression$1", {"literal":"}"}]},
     {"name": "Int$ebnf$1", "symbols": [/[0-9]/]},
     {"name": "Int$ebnf$1", "symbols": ["Int$ebnf$1", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "Int", "symbols": ["Int$ebnf$1"]},
-    {"name": "Printable", "symbols": [/[ -~]/]}
+    {"name": "Int", "symbols": ["Int$ebnf$1"], "postprocess": (data) => Number(data.join())},
+    {"name": "Char", "symbols": [/[0-9A-Za-z@]/], "postprocess": id}
   ],
   ParserStart: "Regex",
 };

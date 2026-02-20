@@ -8,7 +8,7 @@ export default class RegexParser {
   constructor(target: string) {
     this.target = target;
     this.parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    this.parser.feed("[0-9A-Za-z]+@[0-9A-Za-z]");
+    this.parser.feed("a{1,}b");
     console.log(this.parser.results);
   }
 
